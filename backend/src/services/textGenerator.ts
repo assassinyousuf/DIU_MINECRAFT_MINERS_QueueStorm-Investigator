@@ -55,7 +55,7 @@ MANDATORY SAFETY RULES for customer_reply:
     {
       model: MODEL,
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 600,
+      max_tokens: 400,
       temperature: 0.7,
       top_p: 0.95,
       stream: false,
@@ -66,7 +66,7 @@ MANDATORY SAFETY RULES for customer_reply:
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      timeout: 20000,
+      timeout: 27000,
     }
   );
 
