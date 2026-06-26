@@ -1,0 +1,7 @@
+# Copy this file to terraform.tfvars and fill in the values.
+# NEVER commit terraform.tfvars to git.
+
+aws_region        = "ap-southeast-1"
+instance_type     = "t3.micro"
+ssh_public_key    = "ssh-rsa AAAA... your-public-key-here"
+anthropic_api_key = "sk-ant-..."

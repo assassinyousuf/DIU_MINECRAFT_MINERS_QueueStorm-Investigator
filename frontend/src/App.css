@@ -1,0 +1,116 @@
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-left { display: flex; align-items: center; gap: 0.9rem; }
+
+.logo { font-size: 1.5rem; }
+
+.app-header h1 { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.app-header p  { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; }
+
+.header-right { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+
+.health-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.health-dot.ok    { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.health-dot.error { background: var(--red); }
+
+.health-label { font-size: 0.75rem; color: var(--muted); }
+
+/* ── Body ── */
+.app-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+  gap: 1.25rem;
+}
+
+@media (max-width: 800px) {
+  .app-body { grid-template-columns: 1fr; }
+}
+
+/* ── Panels ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.panel-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.result-panel { overflow-y: auto; max-height: calc(100vh - 120px); }
+
+/* ── States ── */
+.error-box {
+  background: #f8717122;
+  border: 1px solid var(--red);
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--red);
+}
+
+.empty-state {
+  color: var(--muted);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.loading-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  padding: 2rem;
+  justify-content: center;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
