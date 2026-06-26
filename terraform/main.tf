@@ -40,13 +40,13 @@ resource "aws_lambda_function" "api" {
   handler       = "dist/lambda.handler"
   runtime       = "nodejs20.x"
   filename      = var.lambda_zip_path
-  timeout       = 30
+  timeout       = 60
   memory_size   = 256
 
   environment {
     variables = {
-      NODE_ENV          = "production"
-      ANTHROPIC_API_KEY = var.anthropic_api_key
+      NODE_ENV        = "production"
+      NVIDIA_API_KEY  = var.nvidia_api_key
     }
   }
 

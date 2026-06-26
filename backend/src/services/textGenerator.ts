@@ -1,9 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk';
+import axios from 'axios';
 import { CaseType, EvidenceVerdict, Transaction } from '../types';
 
-const client = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  : null;
+const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY ?? '';
+const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const MODEL = 'minimaxai/minimax-m3';
 
 export interface GeneratedText {
   agentSummary: string;
@@ -19,7 +19,7 @@ interface GenInput {
 }
 
 export async function generateTexts(input: GenInput): Promise<GeneratedText> {
-  if (client) {
+  if (NVIDIA_API_KEY) {
     try {
       return await generateWithAI(input);
     } catch (err) {
@@ -31,17 +31,18 @@ export async function generateTexts(input: GenInput): Promise<GeneratedText> {
 
 async function generateWithAI(input: GenInput): Promise<GeneratedText> {
   const { complaint, caseType, evidenceVerdict, matchedTransaction } = input;
-  const prompt = `You are a support copilot for a digital finance platform. Generate structured JSON support responses.
+
+  const prompt = `You are a support copilot for a digital finance platform (like bKash). Generate structured JSON support responses.
 
 COMPLAINT: ${complaint}
 CASE_TYPE: ${caseType}
 EVIDENCE_VERDICT: ${evidenceVerdict}
 MATCHED_TRANSACTION: ${matchedTransaction ? JSON.stringify(matchedTransaction) : 'null'}
 
-Return ONLY a valid JSON object with exactly these keys:
+Return ONLY a valid JSON object with exactly these three keys (no markdown, no extra text):
 - "agent_summary": 1-2 sentence factual summary for the internal support agent
 - "recommended_next_action": specific operational step for the support agent
-- "customer_reply": safe, empathetic official reply
+- "customer_reply": safe, empathetic official reply to the customer
 
 MANDATORY SAFETY RULES for customer_reply:
 1. NEVER ask for PIN, OTP, password, or any credentials
@@ -49,18 +50,31 @@ MANDATORY SAFETY RULES for customer_reply:
 3. NEVER direct to a third-party number — say "our team will contact you through official support channels"
 4. Be empathetic but non-committal on outcomes`;
 
-  const response = await client!.messages.create({
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 600,
-    messages: [{ role: 'user', content: prompt }],
-  });
+  const response = await axios.post(
+    NVIDIA_URL,
+    {
+      model: MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 600,
+      temperature: 0.7,
+      top_p: 0.95,
+      stream: false,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${NVIDIA_API_KEY}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      timeout: 20000,
+    }
+  );
 
-  const block = response.content[0];
-  if (block.type !== 'text') throw new Error('Unexpected response type');
+  const raw: string = response.data.choices[0].message.content;
 
   // Strip markdown code fences if present
-  const raw = block.text.replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-  const parsed = JSON.parse(raw);
+  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
+  const parsed = JSON.parse(cleaned);
 
   return {
     agentSummary: String(parsed.agent_summary),

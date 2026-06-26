@@ -10,8 +10,8 @@ variable "lambda_zip_path" {
   default     = "C:/Users/User/AppData/Local/Temp/queuestorm-lambda.zip"
 }
 
-variable "anthropic_api_key" {
-  description = "Anthropic API key for Claude Haiku text generation (optional)"
+variable "nvidia_api_key" {
+  description = "NVIDIA API key for MiniMax-M3 text generation"
   type        = string
   default     = ""
   sensitive   = true
