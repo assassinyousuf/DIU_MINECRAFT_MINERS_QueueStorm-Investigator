@@ -1,8 +1,8 @@
 import { CaseType, EvidenceVerdict, Transaction } from '../types';
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? '';
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'google/gemma-4-31b-it:free';
+const OPENROUTER_URL = process.env.OPENROUTER_URL ?? 'https://openrouter.ai/api/v1/chat/completions';
+const MODEL = process.env.MODEL_NAME ?? 'google/gemma-4-31b-it:free';
 
 export interface GeneratedText {
   agentSummary: string;
