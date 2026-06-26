@@ -10,8 +10,8 @@ variable "lambda_zip_path" {
   default     = "C:/Users/User/AppData/Local/Temp/queuestorm-lambda.zip"
 }
 
-variable "nvidia_api_key" {
-  description = "NVIDIA API key for MiniMax-M3 text generation"
+variable "openrouter_api_key" {
+  description = "OpenRouter API key for AI text generation via openrouter/fusion"
   type        = string
   default     = ""
   sensitive   = true

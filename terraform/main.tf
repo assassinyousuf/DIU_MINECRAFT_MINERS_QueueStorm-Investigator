@@ -45,8 +45,8 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      NODE_ENV        = "production"
-      NVIDIA_API_KEY  = var.nvidia_api_key
+      NODE_ENV            = "production"
+      OPENROUTER_API_KEY  = var.openrouter_api_key
     }
   }
 

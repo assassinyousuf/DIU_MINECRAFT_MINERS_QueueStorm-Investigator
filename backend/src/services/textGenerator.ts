@@ -1,9 +1,8 @@
-import axios from 'axios';
 import { CaseType, EvidenceVerdict, Transaction } from '../types';
 
-const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY ?? '';
-const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const MODEL = 'minimaxai/minimax-m3';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY ?? '';
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const MODEL = 'google/gemma-4-31b-it:free';
 
 export interface GeneratedText {
   agentSummary: string;
@@ -19,7 +18,7 @@ interface GenInput {
 }
 
 export async function generateTexts(input: GenInput): Promise<GeneratedText> {
-  if (NVIDIA_API_KEY) {
+  if (OPENROUTER_API_KEY) {
     try {
       return await generateWithAI(input);
     } catch (err) {
@@ -50,31 +49,31 @@ MANDATORY SAFETY RULES for customer_reply:
 3. NEVER direct to a third-party number — say "our team will contact you through official support channels"
 4. Be empathetic but non-committal on outcomes`;
 
-  const response = await axios.post(
-    NVIDIA_URL,
-    {
+  const res = await fetch(OPENROUTER_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
       model: MODEL,
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 400,
-      temperature: 0.7,
-      top_p: 0.95,
-      stream: false,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${NVIDIA_API_KEY}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      timeout: 27000,
-    }
-  );
+    }),
+    signal: AbortSignal.timeout(27000),
+  });
 
-  const raw: string = response.data.choices[0].message.content;
+  if (!res.ok) {
+    throw new Error(`OpenRouter error ${res.status}: ${await res.text()}`);
+  }
 
-  // Strip markdown code fences if present
-  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
-  const parsed = JSON.parse(cleaned);
+  const data = await res.json() as { choices: Array<{ message: { content: string } }> };
+  const raw: string = data.choices[0].message.content;
+
+  // Extract JSON object — model may prepend prose before the JSON block
+  const jsonMatch = raw.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error(`No JSON found in AI response: ${raw.slice(0, 100)}`);
+  const parsed = JSON.parse(jsonMatch[0]);
 
   return {
     agentSummary: String(parsed.agent_summary),
